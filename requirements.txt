@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+python-multipart
+PyMuPDF
+mysql-connector-python
+requests
