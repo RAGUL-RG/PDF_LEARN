@@ -18,3 +18,11 @@ services:
         value: pdf_ai
       - key: DB_PORT
         value: 3306
+services:
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: ROOT
+      MYSQL_DATABASE: pdf_ai
+    ports:
+      - "3306:3306"
