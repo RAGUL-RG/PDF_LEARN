@@ -36,7 +36,7 @@ if not os.path.exists(UPLOAD_DIR):
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 DB_CONFIG = {
-    "host": os.getenv("DB_HOST", "db"),
+    "host": os.getenv("DB_HOST", "localhost"),  # Changed from 'db' to 'localhost' for local development
     "port": int(os.getenv("DB_PORT", 3306)),
     "user": os.getenv("DB_USER", "root"),
     "password": os.getenv("DB_PASSWORD", "ROOT"),
