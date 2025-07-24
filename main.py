@@ -10,6 +10,7 @@ import fitz  # PyMuPDF
 from uuid import uuid4
 import logging
 import requests
+import time
 
 # === LOGGING === #
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -35,37 +36,52 @@ if not os.path.exists(UPLOAD_DIR):
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 DB_CONFIG = {
-    "host": os.getenv("DB_HOST", "localhost"),
+    "host": os.getenv("DB_HOST", "db"),
     "port": int(os.getenv("DB_PORT", 3306)),
     "user": os.getenv("DB_USER", "root"),
     "password": os.getenv("DB_PASSWORD", "ROOT"),
     "database": os.getenv("DB_NAME", "pdf_ai")
 }
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyAgITtZxIu4YQf9by4tXBelVJogJd5brtE")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "your-api-key")
 
 # === DATABASE SETUP === #
-def connect_db():
-    try:
-        return mysql.connector.connect(**DB_CONFIG)
-    except mysql.connector.Error as err:
-        logger.error(f"Database connection error: {err}")
-        raise
+def connect_db(retries=5, delay=2):
+    for i in range(retries):
+        try:
+            return mysql.connector.connect(**DB_CONFIG)
+        except mysql.connector.Error as err:
+            logger.error(f"Database connection attempt {i+1} failed: {err}")
+            time.sleep(delay)
+    raise ConnectionError("Could not connect to the database after multiple retries.")
 
 def create_table():
-    conn = connect_db()
-    cur = conn.cursor()
-    cur.execute('''
-        CREATE TABLE IF NOT EXISTS pdf_files (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            filename VARCHAR(255),
-            filepath VARCHAR(255),
-            uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-    conn.commit()
-    conn.close()
+    try:
+        conn = connect_db()
+        cur = conn.cursor()
+        cur.execute('''
+            CREATE TABLE IF NOT EXISTS pdf_files (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                filename VARCHAR(255),
+                filepath VARCHAR(255),
+                uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        cur.execute('''
+            CREATE TABLE IF NOT EXISTS questions (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                question TEXT,
+                answer TEXT,
+                asked_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        logger.error(f"Table creation failed: {e}")
 
-create_table()
+@app.on_event("startup")
+def startup_event():
+    create_table()
 
 # === HELPER FUNCTIONS === #
 def save_file(file: UploadFile):
@@ -76,12 +92,15 @@ def save_file(file: UploadFile):
     with open(file_path, "wb") as buffer:
         buffer.write(file.file.read())
 
-    conn = connect_db()
-    cur = conn.cursor()
-    cur.execute("INSERT INTO pdf_files (filename, filepath) VALUES (%s, %s)",
-                (file.filename, file_path))
-    conn.commit()
-    conn.close()
+    try:
+        conn = connect_db()
+        cur = conn.cursor()
+        cur.execute("INSERT INTO pdf_files (filename, filepath) VALUES (%s, %s)",
+                    (file.filename, file_path))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        logger.error(f"Failed to save file info to DB: {e}")
 
     return file_path
 
@@ -134,17 +153,25 @@ async def ask_question(question: str = Form(...)):
         cur = conn.cursor()
         cur.execute("SELECT filepath FROM pdf_files ORDER BY uploaded_at DESC LIMIT 3")
         rows = cur.fetchall()
-        conn.close()
 
         context = ""
         for row in rows:
             context += extract_text_from_pdf(row[0]) + "\n"
 
         response = ask_gemini(question, context[:20000])  # keep context within token limit
+
+        cur.execute("INSERT INTO questions (question, answer) VALUES (%s, %s)", (question, response))
+        conn.commit()
+        conn.close()
+
         return JSONResponse({"answer": response})
     except Exception as e:
         logger.exception("An error occurred while answering the question.")
         return JSONResponse({"answer": "Something went wrong while processing your question."}, status_code=500)
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
 
 @app.get("/", response_class=HTMLResponse)
 def index():
