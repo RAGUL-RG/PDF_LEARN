@@ -25,10 +25,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
-
 # === CONFIG === #
 UPLOAD_DIR = "uploads"
+
+# Ensure the uploads folder exists BEFORE mount
+if not os.path.exists(UPLOAD_DIR):
+    os.makedirs(UPLOAD_DIR)
+
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
+
 DB_CONFIG = {
     "host": os.getenv("DB_HOST", "localhost"),
     "port": int(os.getenv("DB_PORT", 3306)),
@@ -37,9 +42,6 @@ DB_CONFIG = {
     "database": os.getenv("DB_NAME", "pdf_ai")
 }
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyAgITtZxIu4YQf9by4tXBelVJogJd5brtE")
-
-if not os.path.exists(UPLOAD_DIR):
-    os.makedirs(UPLOAD_DIR)
 
 # === DATABASE SETUP === #
 def connect_db():
