@@ -6,7 +6,7 @@ def get_conn():
         user=os.getenv("SUPABASE_DB_USER"),
         password=os.getenv("SUPABASE_DB_PASS"),
         database=os.getenv("SUPABASE_DB_NAME"),
-        port=6543
+        port=5432
     )
 
 def get_cursor():
