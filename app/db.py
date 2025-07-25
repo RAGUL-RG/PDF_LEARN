@@ -1,13 +1,10 @@
-import psycopg2, os
+import os
+import psycopg2
+from urllib.parse import urlparse
 
 def get_conn():
-    return psycopg2.connect(
-        host=os.getenv("SUPABASE_DB_HOST"),
-        user=os.getenv("SUPABASE_DB_USER"),
-        password=os.getenv("SUPABASE_DB_PASS"),
-        database=os.getenv("SUPABASE_DB_NAME"),
-        port=5432
-    )
+    return psycopg2.connect(os.getenv("SUPABASE_DB_URL"))
+
 
 def get_cursor():
     conn = get_conn()
