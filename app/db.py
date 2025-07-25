@@ -3,7 +3,10 @@ import psycopg2
 from urllib.parse import urlparse
 
 def get_conn():
-    return psycopg2.connect(os.getenv("SUPABASE_DB_URL"))
+    url = os.getenv("SUPABASE_DB_URL")
+    print("🔍 SUPABASE_DB_URL:", url)  # Debug line
+    return psycopg2.connect(url)
+
 
 
 def get_cursor():
