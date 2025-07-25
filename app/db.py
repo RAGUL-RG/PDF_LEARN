@@ -3,9 +3,9 @@ import psycopg2
 from urllib.parse import urlparse
 
 def get_conn():
-    url = os.getenv("SUPABASE_DB_URL")
-    print("🔍 SUPABASE_DB_URL:", url)  # Debug line
-    return psycopg2.connect(url)
+   url = os.environ.get("SUPABASE_DB_URL")
+print("🔍 SUPABASE_DB_URL:", url)
+
 
 
 
