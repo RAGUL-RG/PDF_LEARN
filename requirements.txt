@@ -9,4 +9,5 @@ python-jose
 passlib[bcrypt]
 PyJWT
 python-multipart
+supabase
 
