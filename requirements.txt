@@ -7,3 +7,4 @@ PyMuPDF
 b2sdk
 python-jose
 passlib[bcrypt]
+PyJWT
