@@ -6,7 +6,8 @@ url = os.environ.get("SUPABASE_DB_URL")
 print("🔍 SUPABASE_DB_URL:", url)
 
 def get_conn():
-    return psycopg2.connect(url)
+        return psycopg2.connect(os.getenv("SUPABASE_DB_URL"))
+   
 
 
 def get_cursor():
