@@ -2,11 +2,11 @@ import os
 import psycopg2
 from urllib.parse import urlparse
 
-def get_conn():
-   url = os.environ.get("SUPABASE_DB_URL")
+url = os.environ.get("SUPABASE_DB_URL")
 print("🔍 SUPABASE_DB_URL:", url)
 
-
+def get_conn():
+    return psycopg2.connect(url)
 
 
 def get_cursor():
