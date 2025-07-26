@@ -1,18 +1,19 @@
+import psycopg2
 import os
-import psycopg2
-from urllib.parse import urlparse
 from dotenv import load_dotenv
-import psycopg2
+
+# Load .env variables (only necessary in local dev; Render loads them automatically)
+load_dotenv()
+
+# Get the connection string from environment variable
+DB_URL = os.getenv("SUPABASE_DB_URL", "postgresql://postgres.kjwaoszgsozsywhdxdnp:c97W0c52Zyh7jm4f@aws-0-ap-south-1.pooler.supabase.com:5432/postgres")
 
 def get_conn():
-    return psycopg2.connect("postgresql://postgres.kjwaoszgsozsywhdxdnp:c97W0c52Zyh7jm4f@aws-0-ap-south-1.pooler.supabase.com:5432/postgres",
-        options='-c client_encoding=UTF8'
-    )
+    return psycopg2.connect(DB_URL, options='-c client_encoding=UTF8')
 
 def get_cursor():
     conn = get_conn()
-    cur = conn.cursor()
-    return cur
+    return conn.cursor()
 
 def init_db():
     cur = get_cursor()
@@ -22,6 +23,7 @@ def init_db():
             email TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL
         );
+        
         CREATE TABLE IF NOT EXISTS pdf_files (
             id SERIAL PRIMARY KEY,
             user_email TEXT NOT NULL,
