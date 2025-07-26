@@ -9,13 +9,13 @@ load_dotenv()
 
 url = os.environ.get("SUPABASE_DB_URL")
 print("🔍 SUPABASE_DB_URL:", url)
+import psycopg2
 
 def get_conn():
     return psycopg2.connect(
-        os.getenv("SUPABASE_DB_URL"),
+        "postgresql://postgres.kjwaoszgsozsywhdxdnp:RG%2ARagul1920@aws-0-ap-south-1.pooler.supabase.com:5432/postgres",
         options='-c client_encoding=UTF8'
     )
-
 
 def get_cursor():
     conn = get_conn()
