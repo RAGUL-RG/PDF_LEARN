@@ -13,7 +13,6 @@ def get_conn():
 def get_cursor():
     conn = get_conn()
     cur = conn.cursor()
-    cur.connection = conn  # attach connection for commit
     return cur
 
 def init_db():
