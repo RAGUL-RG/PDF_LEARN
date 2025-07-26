@@ -3,6 +3,7 @@ import psycopg2
 from urllib.parse import urlparse
 from dotenv import load_dotenv
 
+
 load_dotenv()
 
 
@@ -10,8 +11,10 @@ url = os.environ.get("SUPABASE_DB_URL")
 print("🔍 SUPABASE_DB_URL:", url)
 
 def get_conn():
-        return psycopg2.connect(os.getenv("SUPABASE_DB_URL"))
-   
+    return psycopg2.connect(
+        os.getenv("SUPABASE_DB_URL"),
+        options='-c client_encoding=UTF8'
+    )
 
 
 def get_cursor():
