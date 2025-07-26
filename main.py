@@ -6,14 +6,17 @@ from app.ask import router as ask_router
 
 app = FastAPI()
 
+# Initialize database connection on startup
 @app.on_event("startup")
 def on_startup():
     init_db()
 
-app.include_router(auth_router, prefix="/auth")
-app.include_router(upload_router, prefix="/upload")
-app.include_router(ask_router, prefix="/ask")
+# Register routers with prefixes
+app.include_router(auth_router, prefix="/auth", tags=["Auth"])
+app.include_router(upload_router, prefix="/upload", tags=["Upload"])
+app.include_router(ask_router, prefix="/ask", tags=["Ask"])
 
+# Root endpoint
 @app.get("/")
 def root():
-    return {"message": "PDF AI Bot API Running"}
+    return {"message": "✅ PDF AI Bot API is running!"}
