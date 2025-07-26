@@ -1,6 +1,10 @@
 import os
 import psycopg2
 from urllib.parse import urlparse
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 url = os.environ.get("SUPABASE_DB_URL")
 print("🔍 SUPABASE_DB_URL:", url)
