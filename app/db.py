@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import psycopg2
 
 def get_conn():
-    return psycopg2.connect("postgresql://postgres.kjwaoszgsozsywhdxdnp:RG%2ARagul1920@aws-0-ap-south-1.pooler.supabase.com:5432/postgres",
+    return psycopg2.connect("postgresql://postgres.kjwaoszgsozsywhdxdnp:c97W0c52Zyh7jm4f@aws-0-ap-south-1.pooler.supabase.com:5432/postgres",
         options='-c client_encoding=UTF8'
     )
 
