@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+python-jose[cryptography]
+python-dotenv
+mega.py
+google-generativeai
+PyMuPDF
+python-multipart
